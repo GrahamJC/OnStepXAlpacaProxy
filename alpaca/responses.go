@@ -82,6 +82,10 @@ func ErrorResponse(w http.ResponseWriter, r *http.Request, httpStatus int, errNu
 	json.NewEncoder(w).Encode(resp)
 }
 
+func NotImplementedResponse(w http.ResponseWriter, r *http.Request) {
+	ErrorResponse(w, r, http.StatusOK, 0x400, "Method not implemented")
+}
+
 func StringResponse(w http.ResponseWriter, r *http.Request, value string) {
 	resp := ValueResponse{
 		Response: Response{

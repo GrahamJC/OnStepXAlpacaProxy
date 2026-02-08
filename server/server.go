@@ -8,22 +8,27 @@ import (
 	"net"
 	"net/http"
 
+	"onstepx-alpaca-proxy/alpaca"
 	"onstepx-alpaca-proxy/config"
 	"onstepx-alpaca-proxy/onstepx"
 )
 
 var (
 	onstepxDevice onstepx.OnStepXDevice
+	telescopeApi  *alpaca.TelescopeAPI
 )
 
 // Start initializes and starts the HTTP server serving the UI from the provided filesystem.
-func Start(device onstepx.OnStepXDevice, uiFS fs.FS, appVersion string) error {
+func Start(uiFS fs.FS, appVersion string, device onstepx.OnStepXDevice) error {
 
 	// Save OnStepX device
 	onstepxDevice = device
+	telescopeApi = alpaca.NewTelescopeAPI(appVersion, 0, device)
 
 	// Setup router
-	setupRoutes(uiFS, appVersion)
+	alpaca.SetupManagementHandlers(appVersion)
+	telescopeApi.SetupRoutes()
+	setupUIRoutes(uiFS, appVersion)
 
 	// Bind listener
 	conf := config.Get()
@@ -39,7 +44,7 @@ func Start(device onstepx.OnStepXDevice, uiFS fs.FS, appVersion string) error {
 	return http.Serve(listener, nil)
 }
 
-func setupRoutes(uiFS fs.FS, appVersion string) {
+func setupUIRoutes(uiFS fs.FS, appVersion string) {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" || r.URL.Path == "/setup" {
@@ -50,11 +55,6 @@ func setupRoutes(uiFS fs.FS, appVersion string) {
 			http.FileServer(http.FS(uiFS)).ServeHTTP(w, r)
 		}
 	})
-
-	// UI support API
-	http.HandleFunc("/ui/proxy/version", handleGetProxyVersion("development"))
-	http.HandleFunc("/ui/firmware/version", handleGetFirmwareVersion)
-	http.HandleFunc("/ui/position", handleGetPosition)
 }
 
 // UI support handlers

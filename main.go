@@ -48,38 +48,20 @@ func main() {
 	comPort := cfg.ComPort
 	if comPort == "" {
 		comPort, err = onstepx.FindPort(cfg.BaudRate)
-		if err != nil {
-			fmt.Printf("FATAL: error finding COM port - %v\n", err)
-			os.Exit(1)
-		}
+		//if err != nil {
+		//	fmt.Printf("FATAL: error finding COM port - %v\n", err)
+		//	os.Exit(1)
+		//}
 	}
 	onstepx := onstepx.NewDevice(comPort, cfg.BaudRate)
 
 	// Connect OnStepX device
-	if !onstepx.Connect() {
-		slog.Error("failed to connect to OnStepX device")
-	} else {
-
-		// Set date/time
+	if onstepx.Connect() {
 		err = onstepx.SetSiteTime(time.Now())
-
-		dt, _ := onstepx.GetSiteTime()
-		slog.Info(fmt.Sprintf("Date/Time: %s", dt))
-		onstepx.SetSiteTime(dt)
-		lat, _ := onstepx.GetSiteLatitude()
-		slog.Info(fmt.Sprintf("Latitude: %f", lat))
-		onstepx.SetSiteLatitude(lat)
-		long, _ := onstepx.GetSiteLongitude()
-		slog.Info(fmt.Sprintf("Longitude: %f", long))
-		onstepx.SetSiteLongitude(long)
-		elv, _ := onstepx.GetSiteElevation()
-		slog.Info(fmt.Sprintf("Elevation: %f", elv))
-		onstepx.SetSiteElevation(elv)
-		utc, _ := onstepx.GetSiteUTCOffset()
-		slog.Info(fmt.Sprintf("UTC Offset: %d", utc))
-		onstepx.SetSiteUTCOffset(utc)
+	} else {
+		slog.Error("failed to connect to OnStepX device")
 	}
 
 	// Start HTTP server
-	server.Start(onstepx, uiFS, "0.0.0")
+	server.Start(uiFS, "0.0.0", onstepx)
 }
