@@ -1,0 +1,9 @@
+.pio
+.vscode/
+media/
+AscomAlpacaProxy/resource.syso
+AscomAlpacaProxy/build
+AscomAlpacaProxy/install
+AscomAlpacaProxy/temp_installer.iss
+test
+ROADMAP.md
