@@ -1,0 +1,20 @@
+meta {
+  name: PutSlewSettleTime
+  type: http
+  seq: 56
+}
+
+put {
+  url: {{baseUrl}}/slewsettletime
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  SlewSettleTime: 0
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

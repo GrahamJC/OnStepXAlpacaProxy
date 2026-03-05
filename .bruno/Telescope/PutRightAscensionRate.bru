@@ -1,0 +1,20 @@
+meta {
+  name: PutRightAscensionRate
+  type: http
+  seq: 47
+}
+
+put {
+  url: {{baseUrl}}/rightascensionrate
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  RightAscensionRate: 0
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

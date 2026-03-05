@@ -2,10 +2,9 @@ package alpaca
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
-	"math"
 	"net/http"
-	"sync/atomic"
 )
 
 // --- Response Structs ---
@@ -44,53 +43,88 @@ func ManagementValueResponse(w http.ResponseWriter, r *http.Request, value inter
 }
 
 // --- Standard Alpaca Responses ---
+func BadRequestResponse(w http.ResponseWriter, r *http.Request, message string) {
+	w.Header().Set("Content-Type", "text")
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write([]byte(message))
+}
+
+func InternalErrorResponse(w http.ResponseWriter, r *http.Request, message string) {
+	w.Header().Set("Content-Type", "text")
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte(message))
+}
 
 func writeResponse(w http.ResponseWriter, r *http.Request, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)
 }
 
-func EmptyResponse(w http.ResponseWriter, r *http.Request) {
+func SuccessResponse(w http.ResponseWriter, r *http.Request) {
+	alpacaIDs, _ := r.Context().Value("AlpacaIDs").(AlpacaIDs)
 	resp := Response{
-		ClientTransactionID: atomic.LoadUint32(&ClientTransactionID),
-		ServerTransactionID: atomic.AddUint32(&ServerTransactionID, 1),
+		ClientTransactionID: alpacaIDs.ClientTransactionID,
+		ServerTransactionID: alpacaIDs.ServerTransactionID,
 	}
 	writeResponse(w, r, resp)
 }
 
 func StringListResponse(w http.ResponseWriter, r *http.Request, value []string) {
+	alpacaIDs, _ := r.Context().Value("AlpacaIDs").(AlpacaIDs)
 	resp := ValueResponse{
 		Response: Response{
-			ClientTransactionID: atomic.LoadUint32(&ClientTransactionID),
-			ServerTransactionID: atomic.AddUint32(&ServerTransactionID, 1),
+			ClientTransactionID: alpacaIDs.ClientTransactionID,
+			ServerTransactionID: alpacaIDs.ServerTransactionID,
 		},
 		Value: value,
 	}
 	writeResponse(w, r, resp)
 }
 
-func ErrorResponse(w http.ResponseWriter, r *http.Request, httpStatus int, errNum int, errMsg string) {
+func ErrorResponse(w http.ResponseWriter, r *http.Request, errNum int, errMsg string) {
+	alpacaIDs, _ := r.Context().Value("AlpacaIDs").(AlpacaIDs)
 	resp := Response{
-		ClientTransactionID: atomic.LoadUint32(&ClientTransactionID),
-		ServerTransactionID: atomic.AddUint32(&ServerTransactionID, 1),
+		ClientTransactionID: alpacaIDs.ClientTransactionID,
+		ServerTransactionID: alpacaIDs.ServerTransactionID,
 		ErrorNumber:         errNum,
 		ErrorMessage:        errMsg,
 	}
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(httpStatus)
-	slog.Error("Alpaca request failed with HTTP status %d, error %d: %s", httpStatus, errNum, errMsg)
+	w.WriteHeader(http.StatusOK)
+	slog.Error(fmt.Sprintf("Alpaca request failed with error %d: %s", errNum, errMsg))
 	json.NewEncoder(w).Encode(resp)
 }
 
-func NotImplementedResponse(w http.ResponseWriter, r *http.Request) {
-	ErrorResponse(w, r, http.StatusOK, 0x400, "Method not implemented")
+func NotImplementedResponse(w http.ResponseWriter, r *http.Request, name string) {
+	ErrorResponse(w, r, 0x400, fmt.Sprintf("Method '%s' not implemented", name))
+}
+
+func PropertyNotImplementedResponse(w http.ResponseWriter, r *http.Request, name string) {
+	ErrorResponse(w, r, 0x400, fmt.Sprintf("Property '%s' not implemented", name))
+}
+
+func PropertyReadOnlyResponse(w http.ResponseWriter, r *http.Request, name string) {
+	ErrorResponse(w, r, 0x400, fmt.Sprintf("Property '%s' cannot be written", name))
+}
+
+func AnyResponse(w http.ResponseWriter, r *http.Request, value interface{}) {
+	alpacaIDs, _ := r.Context().Value("AlpacaIDs").(AlpacaIDs)
+	resp := ValueResponse{
+		Response: Response{
+			ClientTransactionID: alpacaIDs.ClientTransactionID,
+			ServerTransactionID: alpacaIDs.ServerTransactionID,
+		},
+		Value: value,
+	}
+	writeResponse(w, r, resp)
 }
 
 func StringResponse(w http.ResponseWriter, r *http.Request, value string) {
+	alpacaIDs, _ := r.Context().Value("AlpacaIDs").(AlpacaIDs)
 	resp := ValueResponse{
 		Response: Response{
-			ClientTransactionID: atomic.LoadUint32(&ClientTransactionID),
-			ServerTransactionID: atomic.AddUint32(&ServerTransactionID, 1),
+			ClientTransactionID: alpacaIDs.ClientTransactionID,
+			ServerTransactionID: alpacaIDs.ServerTransactionID,
 		},
 		Value: value,
 	}
@@ -98,10 +132,11 @@ func StringResponse(w http.ResponseWriter, r *http.Request, value string) {
 }
 
 func IntResponse(w http.ResponseWriter, r *http.Request, value int) {
+	alpacaIDs, _ := r.Context().Value("AlpacaIDs").(AlpacaIDs)
 	resp := ValueResponse{
 		Response: Response{
-			ClientTransactionID: atomic.LoadUint32(&ClientTransactionID),
-			ServerTransactionID: atomic.AddUint32(&ServerTransactionID, 1),
+			ClientTransactionID: alpacaIDs.ClientTransactionID,
+			ServerTransactionID: alpacaIDs.ServerTransactionID,
 		},
 		Value: value,
 	}
@@ -109,38 +144,27 @@ func IntResponse(w http.ResponseWriter, r *http.Request, value int) {
 }
 
 func FloatResponse(w http.ResponseWriter, r *http.Request, value float64) {
-	// Round to 2 decimal places to avoid IEEE 754 floating-point precision issues
+	// Round to 8 decimal places to avoid IEEE 754 floating-point precision issues
 	// (e.g., 3.4 showing as 3.4000000000000004)
-	value = math.Round(value*100) / 100
+	//value = math.Round(value*100000000) / 100000000
+	alpacaIDs, _ := r.Context().Value("AlpacaIDs").(AlpacaIDs)
 
 	resp := ValueResponse{
 		Response: Response{
-			ClientTransactionID: atomic.LoadUint32(&ClientTransactionID),
-			ServerTransactionID: atomic.AddUint32(&ServerTransactionID, 1),
+			ClientTransactionID: alpacaIDs.ClientTransactionID,
+			ServerTransactionID: alpacaIDs.ServerTransactionID,
 		},
 		Value: value,
 	}
 	writeResponse(w, r, resp)
 }
 
-func InvalidValueResponse(w http.ResponseWriter, r *http.Request, errNum int, errMsg string) {
-	resp := ValueResponse{
-		Response: Response{
-			ClientTransactionID: atomic.LoadUint32(&ClientTransactionID),
-			ServerTransactionID: atomic.AddUint32(&ServerTransactionID, 1),
-			ErrorNumber:         errNum,
-			ErrorMessage:        errMsg,
-		},
-		Value: nil, // Use nil for the value in an invalid value response
-	}
-	writeResponse(w, r, resp)
-}
-
 func BoolResponse(w http.ResponseWriter, r *http.Request, value bool) {
+	alpacaIDs, _ := r.Context().Value("AlpacaIDs").(AlpacaIDs)
 	resp := ValueResponse{
 		Response: Response{
-			ClientTransactionID: atomic.LoadUint32(&ClientTransactionID),
-			ServerTransactionID: atomic.AddUint32(&ServerTransactionID, 1),
+			ClientTransactionID: alpacaIDs.ClientTransactionID,
+			ServerTransactionID: alpacaIDs.ServerTransactionID,
 		},
 		Value: value,
 	}

@@ -1,0 +1,16 @@
+meta {
+  name: GetSupportedActions
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrl}}/supportedactions
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

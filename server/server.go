@@ -97,10 +97,10 @@ func handleGetPosition(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 	response := struct {
-		RA  float32 `json:"ra"`
-		Dec float32 `json:"dec"`
-		Alt float32 `json:"alt"`
-		Az  float32 `json:"az"`
+		RA  float64 `json:"ra"`
+		Dec float64 `json:"dec"`
+		Alt float64 `json:"alt"`
+		Az  float64 `json:"az"`
 	}{}
 
 	// Must be connected
@@ -109,19 +109,19 @@ func handleGetPosition(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get current position from OnStepX device
-	response.RA, err = onstepxDevice.GetPositionRA()
+	response.RA, err = onstepxDevice.GetRightAscension()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	response.Dec, err = onstepxDevice.GetPositionDec()
+	response.Dec, err = onstepxDevice.GetDeclination()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	response.Alt, err = onstepxDevice.GetPositionAlt()
+	response.Alt, err = onstepxDevice.GetAltitude()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	response.Az, err = onstepxDevice.GetPositionAz()
+	response.Az, err = onstepxDevice.GetAzimuth()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -148,15 +148,15 @@ func handleGetStatus(w http.ResponseWriter, r *http.Request) {
 		IsSlewing  bool `json:"isSlewing"`
 		IsTracking bool `json:"isTracking"`
 		Position   struct {
-			RA  float32 `json:"ra"`
-			Dec float32 `json:"dec"`
-			Alt float32 `json:"alt"`
-			Az  float32 `json:"az"`
+			RA  float64 `json:"ra"`
+			Dec float64 `json:"dec"`
+			Alt float64 `json:"alt"`
+			Az  float64 `json:"az"`
 		} `json:"position"`
 		TrackingRate int8 `json:"trackingRate"`
-		GuideRate    float32 `json:"guideRate"`
-		MaxSlewSpeed float32 `json:"maxSlewSpeed"`
-		GotoRate     float32 `json:"gotoRate"`
+		GuideRate    float64 `json:"guideRate"`
+		MaxSlewSpeed float64 `json:"maxSlewSpeed"`
+		GotoRate     float64 `json:"gotoRate"`
 	}{
 		IsHome:     true,
 		IsParked:   true,

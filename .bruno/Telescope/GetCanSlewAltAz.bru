@@ -1,0 +1,16 @@
+meta {
+  name: GetCanSlewAltAz
+  type: http
+  seq: 37
+}
+
+get {
+  url: {{baseUrl}}/canslewaltaz
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

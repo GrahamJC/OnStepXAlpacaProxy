@@ -1,0 +1,16 @@
+meta {
+  name: GetDeclinationRate
+  type: http
+  seq: 44
+}
+
+get {
+  url: {{baseUrl}}/declinationrate
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

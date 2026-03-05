@@ -1,0 +1,16 @@
+meta {
+  name: GetTrackingRate
+  type: http
+  seq: 61
+}
+
+get {
+  url: {{baseUrl}}/trackingrate
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

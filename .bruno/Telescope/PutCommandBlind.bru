@@ -1,0 +1,20 @@
+meta {
+  name: PutCommandBlind
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{baseUrl}}/commandblind
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  Action: Test
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

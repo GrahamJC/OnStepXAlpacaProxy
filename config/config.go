@@ -15,6 +15,10 @@ type ProxyConfig struct {
 	NetworkPort   int        `json:"networkPort"`
 	ListenAddress string     `json:"listenAddress"`
 	LogLevel      slog.Level `json:"logLevel"`
+	SiteLatitude  float64    `json:"sitelatitude"`
+	SiteLongitude float64    `json:"sitelongitude"`
+	SiteElevation float64    `json:"siteelevation"`
+	SiteUTCOffset int        `json:"siteutcoffset"`
 }
 
 var (

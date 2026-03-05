@@ -1,0 +1,20 @@
+meta {
+  name: PutGuideRateRightAscension
+  type: http
+  seq: 54
+}
+
+put {
+  url: {{baseUrl}}/guideraterightascension
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  GuideRateRightAscension: 0
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

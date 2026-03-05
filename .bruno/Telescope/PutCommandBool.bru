@@ -1,0 +1,21 @@
+meta {
+  name: PutCommandBool
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{baseUrl}}/commandbool
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  Commmand: 
+  Raw: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

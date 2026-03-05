@@ -1,0 +1,21 @@
+meta {
+  name: GetDestinationSideOfPier
+  type: http
+  seq: 69
+}
+
+get {
+  url: {{baseUrl}}/destinationsideofpier?RightAscension=0&Declination=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  RightAscension: 0
+  Declination: 0
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

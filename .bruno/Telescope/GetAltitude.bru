@@ -1,0 +1,16 @@
+meta {
+  name: GetAltitude
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseUrl}}/altitude
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

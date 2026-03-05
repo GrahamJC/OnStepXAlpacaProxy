@@ -1,0 +1,20 @@
+meta {
+  name: PutUTCDate
+  type: http
+  seq: 65
+}
+
+put {
+  url: {{baseUrl}}/utcdate
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  UTCDate: 2026-02-15T16:06:50Z
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

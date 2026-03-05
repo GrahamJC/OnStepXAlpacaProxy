@@ -1,0 +1,16 @@
+meta {
+  name: GetCanSetGuideRates
+  type: http
+  seq: 31
+}
+
+get {
+  url: {{baseUrl}}/cansetguiderates
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

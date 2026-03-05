@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../SV241 PowerBox/SV241-Unbound/AscomAlpacaProxy"
+		},
+		{
+			"path": "../../../SW Mount/OnStepX"
+		}
+	],
+	"settings": {}
+}

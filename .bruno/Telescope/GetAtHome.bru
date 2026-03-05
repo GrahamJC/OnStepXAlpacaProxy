@@ -1,0 +1,16 @@
+meta {
+  name: GetAtHome
+  type: http
+  seq: 24
+}
+
+get {
+  url: {{baseUrl}}/athome
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

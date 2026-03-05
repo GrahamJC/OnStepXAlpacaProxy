@@ -1,0 +1,20 @@
+meta {
+  name: PutTargetDeclination
+  type: http
+  seq: 60
+}
+
+put {
+  url: {{baseUrl}}/targetdeclination
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  TargetDeclination: 0
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

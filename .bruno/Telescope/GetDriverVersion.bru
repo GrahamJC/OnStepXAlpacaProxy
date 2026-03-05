@@ -1,0 +1,16 @@
+meta {
+  name: GetDriverVersion
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrl}}/driverversion
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,20 @@
+meta {
+  name: PutSiteLongitude
+  type: http
+  seq: 78
+}
+
+put {
+  url: {{baseUrl}}/sitelongitude
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  SiteLongitude: -1.6
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

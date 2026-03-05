@@ -1,0 +1,16 @@
+meta {
+  name: GetAtPark
+  type: http
+  seq: 25
+}
+
+get {
+  url: {{baseUrl}}/atpark
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

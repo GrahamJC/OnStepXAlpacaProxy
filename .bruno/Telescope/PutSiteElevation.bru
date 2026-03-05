@@ -1,0 +1,20 @@
+meta {
+  name: PutSiteElevation
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/siteelevation
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  SiteElevation: 0
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

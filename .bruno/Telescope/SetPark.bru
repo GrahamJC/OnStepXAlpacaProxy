@@ -1,0 +1,16 @@
+meta {
+  name: SetPark
+  type: http
+  seq: 73
+}
+
+put {
+  url: {{baseUrl}}/setpark
+  body: formUrlEncoded
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

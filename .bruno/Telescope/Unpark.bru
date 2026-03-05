@@ -1,0 +1,16 @@
+meta {
+  name: Unpark
+  type: http
+  seq: 74
+}
+
+put {
+  url: {{baseUrl}}/unpark
+  body: formUrlEncoded
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

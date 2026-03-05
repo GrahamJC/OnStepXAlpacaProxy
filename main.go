@@ -6,8 +6,8 @@ import (
 	"io/fs"
 	"log/slog"
 	"os"
-	"time"
 
+	"onstepx-alpaca-proxy/alpaca"
 	"onstepx-alpaca-proxy/config"
 	"onstepx-alpaca-proxy/logger"
 	"onstepx-alpaca-proxy/onstepx"
@@ -41,7 +41,8 @@ func main() {
 	cfg := config.Get()
 
 	// Create console logger and set as default
-	logger := slog.New(logger.NewHandler(&slog.HandlerOptions{Level: cfg.LogLevel}))
+	//logger := slog.New(logger.NewHandler(&slog.HandlerOptions{Level: cfg.LogLevel}))
+	logger := slog.New(logger.NewHandler(&slog.HandlerOptions{Level: slog.LevelInfo}))
 	slog.SetDefault(logger)
 
 	// If there is no COM port in the config attempt to find an OnStepX device
@@ -55,12 +56,8 @@ func main() {
 	}
 	onstepx := onstepx.NewDevice(comPort, cfg.BaudRate)
 
-	// Connect OnStepX device
-	if onstepx.Connect() {
-		err = onstepx.SetSiteTime(time.Now())
-	} else {
-		slog.Error("failed to connect to OnStepX device")
-	}
+	// Enable Alpaca discovery
+	go alpaca.RespondToDiscovery()
 
 	// Start HTTP server
 	server.Start(uiFS, "0.0.0", onstepx)

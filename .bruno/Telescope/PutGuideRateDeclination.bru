@@ -1,0 +1,20 @@
+meta {
+  name: PutGuideRateDeclination
+  type: http
+  seq: 52
+}
+
+put {
+  url: {{baseUrl}}/guideratedeclination
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  GuideRateDeclination: 0
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

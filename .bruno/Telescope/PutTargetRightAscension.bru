@@ -1,0 +1,20 @@
+meta {
+  name: PutTargetRightAscension
+  type: http
+  seq: 58
+}
+
+put {
+  url: {{baseUrl}}/targetrightascension
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  TargetRightAscension: 0
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

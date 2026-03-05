@@ -1,0 +1,21 @@
+meta {
+  name: StartSlewToAltAzAsync
+  type: http
+  seq: 78
+}
+
+put {
+  url: {{baseUrl}}/slewtoaltazasync
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  Altitude: 55
+  Azimuth: 155
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

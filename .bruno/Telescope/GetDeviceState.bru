@@ -1,0 +1,16 @@
+meta {
+  name: GetDeviceState
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/devicestate
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

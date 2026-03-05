@@ -1,0 +1,16 @@
+meta {
+  name: AbortSlew
+  type: http
+  seq: 70
+}
+
+put {
+  url: {{baseUrl}}/abortslew
+  body: formUrlEncoded
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,16 @@
+meta {
+  name: GetSiteLongitude
+  type: http
+  seq: 77
+}
+
+get {
+  url: {{baseUrl}}/sitelongitude
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,20 @@
+meta {
+  name: PutTrackingRate
+  type: http
+  seq: 62
+}
+
+put {
+  url: {{baseUrl}}/trackingrate
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  TrackingRate: 4
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,16 @@
+meta {
+  name: GetUTCDate
+  type: http
+  seq: 64
+}
+
+get {
+  url: {{baseUrl}}/utcdate
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

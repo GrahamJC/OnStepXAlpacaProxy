@@ -16,7 +16,7 @@ type ResponseType int
 
 const (
 	RspNone ResponseType = iota
-	RspBool
+	RspOne
 	RspHash
 )
 
@@ -57,9 +57,9 @@ func (d *onstepxDevice) sendCommand(request string, rspType ResponseType, timeou
 	case response := <-rspChan:
 		return response, nil
 	case err := <-errChan:
-		return "", err
+		return "", fmt.Errorf("OnStepX command '%s' failed: %w", request, err)
 	case <-time.After(timeout):
-		return "", errors.New("command timed out waiting for response")
+		return "", fmt.Errorf("OnStepX command '%s' timed out", request)
 	}
 }
 
@@ -197,7 +197,7 @@ func processCommands(port serial.Port, commands chan command) {
 		// Get response (if any)
 		var response []byte
 		err = nil
-		if cmd.RspType == RspBool {
+		if cmd.RspType == RspOne {
 
 			// Read a single character
 			port.SetReadTimeout(cmd.Timeout)

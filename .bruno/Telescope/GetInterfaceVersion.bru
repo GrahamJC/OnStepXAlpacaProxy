@@ -1,0 +1,16 @@
+meta {
+  name: GetInterfaceVersion
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{baseUrl}}/driverversion
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
