@@ -14,7 +14,7 @@ import (
 	"onstepx-alpaca-proxy/server"
 )
 
-//go:embed ui-vue/dist
+//go:embed webui/dist
 var embeddedFS embed.FS
 
 var (
@@ -26,7 +26,7 @@ func main() {
 	var err error
 
 	// Setup UI file system
-	uiFS, err = fs.Sub(embeddedFS, "ui-vue/dist")
+	uiFS, err = fs.Sub(embeddedFS, "webui/dist")
 	if err != nil {
 		// This is a critical error at startup. A message box is appropriate.
 		fmt.Printf("FATAL: failed to load embedded UI files - %v\n", err)
