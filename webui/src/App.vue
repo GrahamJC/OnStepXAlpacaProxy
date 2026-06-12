@@ -3,7 +3,19 @@ import Site from "./components/Site.vue"
 </script>
 
 <template>
-  <Site></Site>
+
+  <header class="container">
+
+  </header>
+
+  <main class="container">
+    <Site></Site>
+  </main>
+
+  <footer class="container">
+
+  </footer>
+
 </template>
 
 <style scoped></style>

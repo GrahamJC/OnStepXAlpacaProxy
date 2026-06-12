@@ -4,14 +4,13 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
-	"log/slog"
-	"os"
-
-	"onstepx-alpaca-proxy/alpaca"
-	"onstepx-alpaca-proxy/config"
-	"onstepx-alpaca-proxy/logger"
-	"onstepx-alpaca-proxy/onstepx"
-	"onstepx-alpaca-proxy/server"
+	"onstepx-alpaca-proxy/connection"
+	"time"
+	//"onstepx-alpaca-proxy/alpaca"
+	//"onstepx-alpaca-proxy/config"
+	//"onstepx-alpaca-proxy/logger"
+	//"onstepx-alpaca-proxy/onstepx"
+	//"onstepx-alpaca-proxy/server"
 )
 
 //go:embed webui/dist
@@ -21,6 +20,61 @@ var (
 	uiFS fs.FS
 )
 
+func main() {
+
+	osxSerial := connection.NewSerialConnection("COM4", 57600, 1000)
+	osx := connection.NewOnstepX(osxSerial)
+	if err := osx.Connect(); err != nil {
+		fmt.Printf("Error connecting to OnStepX: %v\n", err)
+	} else {
+		if v, err := osx.GetVersionFull(); err == nil {
+			fmt.Printf("Version : %v\n", v)
+		}
+		if v, err := osx.GetVersionNumber(); err == nil {
+			fmt.Printf("VersionNumber : %v\n", v)
+		}
+		if v, err := osx.GetVersionFull(); err == nil {
+			fmt.Printf("VersionFull : %v\n", v)
+		}
+		if l, err := osx.GetSiteLatitude(); err == nil {
+			fmt.Printf("SiteLatitude : %v\n", l)
+		} else {
+			fmt.Printf("Error getting site latitude: %v\n", err)
+		}
+		if err := osx.SetSiteLatitude(52.7); err != nil {
+			fmt.Printf("Error setting site latitude: %v\n", err)
+		}
+		if l, err := osx.GetSiteLatitude(); err == nil {
+			fmt.Printf("SiteLatitude : %v\n", l)
+		} else {
+			fmt.Printf("Error getting site latitude: %v\n", err)
+		}
+		if st, err := osx.GetSiderealTime(); err == nil {
+			fmt.Printf("SiderealTime : %v\n", st)
+		} else {
+			fmt.Printf("Error getting sidereal time: %v\n", err)
+		}
+		if err := osx.SetLocalDateTime(time.Date(2026, 6, 12, 15, 23, 45, 0, time.UTC)); err != nil {
+			fmt.Printf("Error setting local date/time: %v\n", err)
+		}
+		if ldt, err := osx.GetLocalDateTime(); err == nil {
+			fmt.Printf("LocalTime : %v\n", ldt)
+		} else {
+			fmt.Printf("Error getting local date/time: %v\n", err)
+		}
+		if err := osx.SetSiteUTCOffset(-5); err != nil {
+			fmt.Printf("Error setting UTC offset: %v\n", err)
+		}
+		if ldt, err := osx.GetLocalDateTime(); err == nil {
+			fmt.Printf("LocalTime : %v\n", ldt)
+		} else {
+			fmt.Printf("Error getting local date/time: %v\n", err)
+		}
+		osx.Disconnect()
+	}
+}
+
+/*
 func main() {
 
 	var err error
@@ -62,3 +116,4 @@ func main() {
 	// Start HTTP server
 	server.Start(uiFS, "0.0.0", onstepx)
 }
+*/
