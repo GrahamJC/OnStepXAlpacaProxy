@@ -29,7 +29,7 @@ func (osx *OnstepXDevice) SetSiteLatitude(lat float64) error {
 	}
 
 	// Set latitude
-	return osx.sendBool(fmt.Sprintf("St%s", formatDegrees(lat, true)))
+	return osx.sendBool(fmt.Sprintf("St%s", formatDegreesSigned(lat)))
 }
 
 func (osx *OnstepXDevice) GetSiteLongitude() (float64, error) {
@@ -56,7 +56,7 @@ func (osx *OnstepXDevice) SetSiteLongitude(lng float64) error {
 	}
 
 	// Set longitude
-	return osx.sendBool(fmt.Sprintf("Sg%s", formatDegrees(lng, false)))
+	return osx.sendBool(fmt.Sprintf("Sg%s", formatDegrees(lng)))
 }
 
 func (osx *OnstepXDevice) GetSiteElevation() (float64, error) {

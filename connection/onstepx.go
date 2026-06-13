@@ -16,6 +16,14 @@ var (
 	ErrInvalidResponse = errors.New("Invalid response")
 )
 
+type PierSide int
+
+const (
+	PierSideEast = 0
+	PierSideWest = 1
+	PierSideNone = 2
+)
+
 type OnstepXDevice struct {
 	transport Transport
 }
@@ -132,12 +140,19 @@ func parseDegrees(s string) (float64, error) {
 	return sign * (deg + min/60.0 + sec/3600.0), nil
 }
 
-func formatDegrees(deg float64, incSign bool) string {
+func formatDegrees(deg float64) string {
+	d := int(math.Floor(deg))
+	m := int(math.Floor((deg - float64(d)) * 60.0))
+	s := (deg - float64(d) - float64(m)/60.0) * 3600.0
+	return fmt.Sprintf("%02d*%02d:%04.1f", d, m, s)
+}
+
+func formatDegreesSigned(deg float64) string {
 	sign := ""
 	if deg < 0 {
 		sign = "-"
 		deg = -deg
-	} else if incSign {
+	} else {
 		sign = "+"
 	}
 	d := int(math.Floor(deg))
@@ -162,63 +177,16 @@ func parseHours(s string) (float64, error) {
 	return sign * (hrs + min/60.0 + sec/3600.0), nil
 }
 
+func formatHours(hrs float64) string {
+	h := int(math.Floor(hrs))
+	m := int(math.Floor((hrs - float64(h)) * 60.0))
+	s := (hrs - float64(h) - float64(m)/60.0) * 3600.0
+	return fmt.Sprintf("%02d*%02d:%04.1f", h, m, s)
+}
+
 /*
 
-func (od *onstepxDevice) GetAtHome() (bool, error) {
-	// Must be connected
-	if err := od.checkConnected("GetAtHome"); err != nil {
-		return false, err
-	}
 
-	// Get status from OnStepX
-	sts, err := od.sendCommand("GU", RspHash, 0)
-	if err != nil {
-		return false, err
-	}
-	return strings.Contains(sts, "H"), nil
-}
-
-func (od *onstepxDevice) GetIsHoming() (bool, error) {
-	// Must be connected
-	if err := od.checkConnected("GetIsHoming"); err != nil {
-		return false, err
-	}
-
-	// Get status from OnStepX
-	sts, err := od.sendCommand("GU", RspHash, 0)
-	if err != nil {
-		return false, err
-	}
-	return strings.Contains(sts, "h"), nil
-}
-
-func (od *onstepxDevice) GetAtPark() (bool, error) {
-	// Must be connected
-	if err := od.checkConnected("GetAtPark"); err != nil {
-		return false, err
-	}
-
-	// Get status from OnStepX
-	sts, err := od.sendCommand("GU", RspHash, 0)
-	if err != nil {
-		return false, err
-	}
-	return strings.Contains(sts, "P"), nil
-}
-
-func (od *onstepxDevice) GetIsParking() (bool, error) {
-	// Must be connected
-	if err := od.checkConnected("GetIsParking"); err != nil {
-		return false, err
-	}
-
-	// Get status from OnStepX
-	sts, err := od.sendCommand("GU", RspHash, 0)
-	if err != nil {
-		return false, err
-	}
-	return strings.Contains(sts, "I"), nil
-}
 
 func (od *onstepxDevice) GetIsTracking() (bool, error) {
 	// Must be connected
@@ -409,196 +377,6 @@ func (od *onstepxDevice) GetPulseGuideRate() (float64, error) {
 	return rate * 15 / 3600, nil
 }
 
-func (od *onstepxDevice) GetTargetRightAscension() (float64, error) {
-	// Must be connected
-	if err := od.checkConnected("GetTargetRightAscension"); err != nil {
-		return 0, err
-	}
-
-	// Get trrget rigth ascension
-	rsp, err := od.sendCommand("GrH", RspHash, 0)
-	if err != nil {
-		return 0.0, err
-	}
-	ra, err := parseHHMMSS(rsp)
-	if err != nil {
-		slog.Debug("OnStepX response Gr bad format", "response", rsp, "error", err)
-		return 0.0, err
-	}
-	return ra, nil
-}
-
-func (od *onstepxDevice) SetTargetRightAscension(ra float64) error {
-	// Must be connected
-	if err := od.checkConnected("SetTargetRightAscension"); err != nil {
-		return err
-	}
-
-	// Check min/max values
-	if ra < 0 || ra >= 24 {
-		slog.Debug("Target right ascension out of range (0 to 24)", "value", ra)
-		return ErrInvalidValue
-	}
-
-	// Set target right ascension
-	rsp, err := od.sendCommand("Sr"+formatHHMMSS(ra), RspOne, 0)
-	if err != nil {
-		return err
-	} else if rsp != "1" {
-		slog.Debug("failed to get OnStepX target right ascension")
-		return fmt.Errorf("failed to get OnStepX target right ascension")
-	}
-	return nil
-}
-
-func (od *onstepxDevice) GetTargetDeclination() (float64, error) {
-	// Must be connected
-	if err := od.checkConnected("GetTargetDeclination"); err != nil {
-		return 0, err
-	}
-
-	// Get target declination
-	rsp, err := od.sendCommand("GdH", RspHash, 0)
-	if err != nil {
-		return 0.0, err
-	}
-	dec, err := parseDDMMSS(rsp)
-	if err != nil {
-		slog.Debug("OnStepX response Gd bad format", "response", rsp, "error", err)
-		return 0.0, err
-	}
-	return dec, nil
-}
-
-func (od *onstepxDevice) SetTargetDeclination(dec float64) error {
-	// Must be connected
-	if err := od.checkConnected("SetTargetDeclination"); err != nil {
-		return err
-	}
-
-	// Check min/max values
-	if dec < -90 || dec > 90 {
-		return ErrInvalidValue
-	}
-
-	// Set target declination
-	rsp, err := od.sendCommand("Sd"+formatDDMMSS(dec, true, false), RspOne, 0)
-	if err != nil {
-		return err
-	} else if rsp != "1" {
-		slog.Debug("failed to get OnStepX target declination")
-		return fmt.Errorf("failed to get OnStepX target declination")
-	}
-	return nil
-}
-
-func (od *onstepxDevice) GetTargetAltitude() (float64, error) {
-	// Must be connected
-	if err := od.checkConnected("GetTargetAltitude"); err != nil {
-		return 0, err
-	}
-
-	// Get target altitude
-	rsp, err := od.sendCommand("GaH", RspHash, 0)
-	if err != nil {
-		return 0.0, err
-	}
-	dec, err := parseDDMMSS(rsp)
-	if err != nil {
-		slog.Debug("OnStepX response GaH bad format", "response", rsp, "error", err)
-		return 0.0, err
-	}
-	return dec, nil
-}
-
-func (od *onstepxDevice) SetTargetAltitude(alt float64) error {
-	// Must be connected
-	if err := od.checkConnected("SetTargetAltitude"); err != nil {
-		return err
-	}
-
-	// Check min/max values
-	if alt < -90 || alt > 90 {
-		slog.Debug("Target altitude out of range (-90 to 90)", "value", alt)
-		return ErrInvalidValue
-	}
-
-	// Set target altitude
-	rsp, err := od.sendCommand("Sa"+formatDDMMSS(alt, true, false), RspOne, 0)
-	if err != nil {
-		return err
-	} else if rsp != "1" {
-		slog.Debug("failed to set OnStepX target altitude")
-		return fmt.Errorf("failed to set OnStepX target altitude")
-	}
-	return nil
-}
-
-func (od *onstepxDevice) GetTargetAzimuth() (float64, error) {
-	// Must be connected
-	if err := od.checkConnected("GetTargetAzimuth"); err != nil {
-		return 0, err
-	}
-
-	// Get target azimuth
-	rsp, err := od.sendCommand("GzH", RspHash, 0)
-	if err != nil {
-		return 0.0, err
-	}
-	dec, err := parseDDMMSS(rsp)
-	if err != nil {
-		slog.Debug("OnStepX response GzH bad format", "response", rsp, "error", err)
-		return 0.0, err
-	}
-	return dec, nil
-}
-
-func (od *onstepxDevice) SetTargetAzimuth(az float64) error {
-	// Must be connected
-	if err := od.checkConnected("SetTargetAzimuth"); err != nil {
-		return err
-	}
-
-	// Check min/max values
-	if az < 0 || az > 360 {
-		slog.Debug("Target azimuth out of range (0 to 360)", "value", az)
-		return ErrInvalidValue
-	}
-
-	// Set target azimuth
-	rsp, err := od.sendCommand("Sz"+formatDDMMSS(az, false, true), RspOne, 0)
-	if err != nil {
-		return err
-	} else if rsp != "1" {
-		slog.Debug("failed to set OnStepX target azimuth")
-		return fmt.Errorf("failed to set OnStepX target azimuth")
-	}
-	return nil
-}
-
-func (od *onstepxDevice) GetTargetPierSide() (PierSide, error) {
-	// Must be connected
-	if err := od.checkConnected("GetTargetPierSide"); err != nil {
-		return PierSideNone, err
-	}
-
-	// Get OnStepX target pier side
-	rsp, err := od.sendCommand("MD", RspOne, 0)
-	if err != nil {
-		return PierSideNone, err
-	}
-	switch rsp {
-	case "0":
-		return PierSideEast, nil
-	case "1":
-		return PierSideWest, nil
-	case "2":
-		return PierSideNone, nil
-	default:
-		slog.Debug(fmt.Sprintf("Invalid response '%s' to OnStepX command 'MD'", rsp))
-		return PierSideNone, fmt.Errorf("failed to get pier side from OnStepX")
-	}
-}
 
 func (od *onstepxDevice) GetTrackingRate() (string, error) {
 	// Must be connected
@@ -690,19 +468,6 @@ func (od *onstepxDevice) AbortSlew() error {
 	return nil
 }
 
-func (od *onstepxDevice) StartHome() error {
-	// Must be connected
-	if err := od.checkConnected("FindHome"); err != nil {
-		return err
-	}
-
-	// Start move to home position
-	_, err := od.sendCommand("hC", RspNone, 0)
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 func (od *onstepxDevice) SetRightAscensionSlewRate(degPerSec float64) error {
 	// Must be connected
@@ -810,57 +575,6 @@ func (od *onstepxDevice) StopDeclinationSlew() error {
 	_, err := od.sendCommand("Qn", RspNone, 0)
 	if err != nil {
 		return err
-	}
-	return nil
-}
-
-func (od *onstepxDevice) StartPark() error {
-	// Must be connected
-	if err := od.checkConnected("StartPark"); err != nil {
-		return err
-	}
-
-	// Start move to park position
-	rsp, err := od.sendCommand("hP", RspOne, 0)
-	if err != nil {
-		return err
-	} else if rsp != "1" {
-		slog.Debug("failed to start OnStepX park operation")
-		return fmt.Errorf("failed to start OnStepX park operation")
-	}
-	return nil
-}
-
-func (od *onstepxDevice) Unpark() error {
-	// Must be connected
-	if err := od.checkConnected("Unpark"); err != nil {
-		return err
-	}
-
-	// Restore OnStepX to operation
-	rsp, err := od.sendCommand("hR", RspOne, 0)
-	if err != nil {
-		return err
-	} else if rsp != "1" {
-		slog.Debug("failed to unpark OnStepX")
-		return fmt.Errorf("failed to unpark OnStepX")
-	}
-	return nil
-}
-
-func (od *onstepxDevice) SetPark() error {
-	// Must be connected
-	if err := od.checkConnected("SetPark"); err != nil {
-		return err
-	}
-
-	// Set OnStepX park to current position
-	rsp, err := od.sendCommand("hQ", RspOne, 0)
-	if err != nil {
-		return err
-	} else if rsp != "1" {
-		slog.Debug("failed to set OnStepX park position")
-		return fmt.Errorf("failed to set OnStepX park position")
 	}
 	return nil
 }
